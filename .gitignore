@@ -1,0 +1,23 @@
+# Build artifacts
+bin/
+*.exe
+*.test
+*.out
+*.sh
+
+# Generated at runtime (regauth/reguser)
+config.yaml
+accounts.yaml
+public-v2.key
+public-v3.key
+.tmp-*
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db

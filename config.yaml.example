@@ -1,0 +1,54 @@
+# Example configuration for regauth.
+# Copy to config.yaml and adjust. Do not commit config.yaml itself.
+# Private keys live in keystore.yaml (single source of truth for v2 and v3).
+
+server:
+  # Registry URL to protect. Required for `regauth server`.
+  registry: "https://registry.tld"
+  # Listen port (default 5100).
+  port: 5100
+  # Disable Origin filtering (test mode only).
+  insecure: false
+  # PID file for the running server.
+  pid_file: "/var/run/regauth.pid"
+  # Log file.
+  logfile: "/var/log/regauth.log"
+  # Duplicate log output to terminal (stderr).
+  logterm: true
+  # Signing key version for all issued tokens: 2 or 3.
+  # Default (if omitted): 3.
+  # 2: tokens are signed with v2 key, registry must use public-v2.key (X.509) as rootcertbundle.
+  # 3: tokens are signed with v3 key, registry must use public-v3.key (JWKS) as jwks.
+  keys_version: 3
+  # Optional whitelist of allowed service names (the `service` parameter in /token requests).
+  # If set, regauth refuses to issue tokens for any other service (400 Bad Request).
+  # If empty or omitted, all services are allowed (backward compatible).
+  # For production, always set this to the exact external registry hostname(s).
+  allowed_services:
+    - "registry.tld"
+  # Exec hooks run as argv lists (no shell) after successful keystore operations.
+  # Example: rotate: ["docker", "restart", "registry-v3"]
+  # The child process receives environment variables:
+  #   REGAUTH_OPERATION   - rotate | rotate-v2 | revoke | delete | cleanup
+  #   REGAUTH_KEY_VERSION - 3 (for v3 operations) or 2 (for rotate-v2)
+  #   REGAUTH_KID         - the key id (for rotate, revoke, delete)
+  #   REGAUTH_REMOVED     - number of removed keys (for cleanup)
+  # Empty list (or omitted) means "do nothing".
+  keystore:
+    rotate: []
+    rotate_v2: []
+    revoke: []
+    delete: []
+    cleanup: []
+  tls:
+    enabled: false
+    cert_file: ""
+    key_file: ""
+
+paths:
+  # Paths are resolved relative to the directory containing the binary,
+  # unless absolute. Files are created automatically if missing.
+  accounts: "accounts.yaml"
+  keystore: "keystore.yaml"   # v2 and v3 private keys + metadata (source of truth)
+  public_v2: "public-v2.key"  # PEM public key derived from keystore (v2 rootcertbundle)
+  public_v3: "public-v3.key"  # JWKS JSON derived from keystore (v3 jwks)

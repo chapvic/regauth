@@ -1,0 +1,32 @@
+# VCS
+.git
+.gitignore
+
+# Build artifacts
+bin/
+*.exe
+*.test
+*.out
+
+# Generated at runtime (never bake into image)
+config.yaml
+accounts.yaml
+public-v2.key
+public-v3.key
+.tmp-*
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CI / docs
+.github/
+completions/
+*.md
+Makefile

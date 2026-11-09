@@ -1,0 +1,64 @@
+# Example accounts file for regauth.
+# Copy to accounts.yaml and adjust. Do not commit accounts.yaml itself.
+#
+# ANONYMOUS is a technical account: it has no password (any password field is
+# ignored with a warning), and it is used for unauthenticated requests.
+# It is created automatically if missing and cannot be added/edited/deleted
+# via reguser (manage it manually here). If you delete it, regauth will recreate
+# it with default rules (pattern "**", actions ["pull"], access allow).
+#
+# Rule semantics:
+#   pattern: glob over resource name segments (or "catalog" for registry:catalog).
+#            '*'  matches exactly one segment
+#            '**' matches any number of segments (including zero)
+#   actions: list of "pull", "push", "delete", or "*"
+#   access:  "allow" or "deny". deny wins over allow. Default is deny.
+#
+# Password is a bcrypt hash. Use `reguser add <user>` or
+# `reguser hash` to produce a proper hash.
+#
+# locked: true|false (default false).
+#   When true, the user cannot authenticate (even with the correct password).
+#   Access rules are preserved. Use `reguser lock <user> -lock` / `-unlock`
+#   or edit this field manually.
+#
+# Resource types are separated: repository rules ("**", "actions/*", ...)
+# DO NOT grant registry:catalog:* access. Catalog requires an explicit rule
+# with pattern: "catalog". And the "catalog" rule does not grant repository access.
+
+users:
+  alice:
+    password: "$2a$12$REPLACE_WITH_BCRYPT_HASH"
+    locked: false
+    rules:
+      - pattern: "actions/**"
+        actions: ["pull", "push"]
+        access: allow
+      - pattern: "actions/secret/**"
+        actions: ["*"]
+        access: deny
+      # Explicit catalog access (registry:catalog:*).
+      # actions may be omitted for pattern "catalog" — it is treated as ["*"].
+      - pattern: "catalog"
+        access: allow
+
+  bob:
+    password: "$2a$12$REPLACE_WITH_BCRYPT_HASH"
+    locked: true   # blocked; rules below are kept
+    rules:
+      - pattern: "library/*"
+        actions: ["pull"]
+        access: allow
+
+  ANONYMOUS:
+    # No password. Do not delete this entry to disable anonymous access;
+    # instead set rules: [] (deny by default) or explicit access: deny rules.
+    rules:
+      # Anonymous can pull any repository, but NOT the catalog.
+      - pattern: "**"
+        actions: ["pull"]
+        access: allow
+      # To allow anonymous catalog access, uncomment:
+      # - pattern: "catalog"
+      #   actions: ["*"]
+      #   access: allow
